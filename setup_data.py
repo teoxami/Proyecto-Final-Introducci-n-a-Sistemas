@@ -49,38 +49,50 @@ def preparar_datos_base():
     print(f"✅ 'data/inventario_lotes.csv' generado con {n_productos} productos e información de vencimiento.")
 
     # -------------------------------------------------------------
-    # 2. CREACIÓN DE PACIENTES RECURRENTES (CRM)
+    # 2. CREACIÓN DE PACIENTES RECURRENTES DIVERSIFICADOS (CRM / RFM)
     # -------------------------------------------------------------
-    print("👥 Generando 'data/pacientes.csv'...")
+    print("👥 Generando 'data/pacientes.csv' con distribución RFM equilibrada...")
     
-    invoices_unicas = df['Invoice'].unique()
-    n_invoices = len(invoices_unicas)
+    n_pacientes = 500
+    pacientes_ids = [f"PAC-{i+1000}" for i in range(n_pacientes)]
     
-    # Crear una lista simulada de 500 pacientes recurrentes
-    pacientes_ids = [f"PAC-{i+1000}" for i in range(500)]
+    nombres = ["Carlos", "María", "Juan", "Ana", "Luis", "Elena", "Pedro", "Sofía", "Diego", "Lucía"]
+    apellidos = ["Gómez", "Pérez", "Rodríguez", "López", "Martínez", "García", "Fernández", "Torres"]
     
-    # Asignar aleatoriamente las facturas a los pacientes
-    mapa_pacientes = np.random.choice(pacientes_ids, size=n_invoices)
-    df_factura_paciente = pd.DataFrame({
-        'Invoice': invoices_unicas,
-        'id_paciente': mapa_pacientes
-    })
+    lista_pacientes = []
     
-    # Cruzar con las fechas para obtener la última compra de cada paciente
-    df_merged = df.merge(df_factura_paciente, on='Invoice')
-    df_merged['addeddate'] = pd.to_datetime(df_merged['addeddate'])
+    for id_pac in pacientes_ids:
+        nombre_completo = f"{np.random.choice(nombres)} {np.random.choice(apellidos)}"
+        
+        # Distribución intencional de la última compra para balancear el gráfico RFM:
+        # 30% Compraron recientemente (0 a 14 días atrás) -> VIP / Leales
+        # 35% Compraron hace un mes (15 a 45 días atrás)  -> En Riesgo
+        # 35% Compraron hace mucho (46 a 180 días atrás) -> Abandono
+        r = np.random.rand()
+        if r < 0.30:
+            dias_atras = np.random.randint(0, 15)
+            compras = np.random.randint(5, 12)  # Frecuencia alta
+        elif r < 0.65:
+            dias_atras = np.random.randint(15, 45)
+            compras = np.random.randint(2, 6)   # Frecuencia media
+        else:
+            dias_atras = np.random.randint(46, 180)
+            compras = np.random.randint(1, 3)   # Frecuencia baja
+
+        fecha_compra = (hoy - timedelta(days=dias_atras)).strftime('%Y-%m-%d %H:%M:%S')
+        
+        lista_pacientes.append({
+            "id_paciente": id_pac,
+            "nombre_paciente": nombre_completo,
+            "ultima_compra": fecha_compra,
+            "total_compras": compras
+        })
     
-    pacientes_resumen = df_merged.groupby('id_paciente').agg(
-        nombre_paciente=('id_paciente', lambda x: f"Paciente {x.iloc[0]}"),
-        ultima_compra=('addeddate', 'max'),
-        total_compras=('Invoice', 'nunique')
-    ).reset_index()
-    
-    pacientes_resumen['ultima_compra'] = pacientes_resumen['ultima_compra'].dt.strftime('%Y-%m-%d')
+    pacientes_resumen = pd.DataFrame(lista_pacientes)
     
     # Guardar en data/pacientes.csv
     pacientes_resumen.to_csv("data/pacientes.csv", index=False)
-    print(f"✅ 'data/pacientes.csv' generado con {len(pacientes_resumen)} registros de pacientes.\n")
+    print(f"✅ 'data/pacientes.csv' generado con {len(pacientes_resumen)} registros balanceados.\n")
     print("🎉 ¡Proceso completado! Archivos auxiliares listos.")
 
 if __name__ == "__main__":

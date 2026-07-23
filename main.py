@@ -111,9 +111,66 @@ def ejecutar_simulacion():
     dash = DashboardGerencial()
     dash.compilar_dashboard()
     
-    print("\n✨ ¡Proceso completado con éxito! Revisa la carpeta 'analytics/' para ver el 'dashboard_gerencial.png'.\n")
+    print("\n✨ ¡Simulación inicial completada con éxito!")
+    return pos  # Retornamos el objeto pos para usarlo en el menú interactivo
+
+def menu_interactivo(pos):
+    """Menú en consola para ingresar datos dinámicamente."""
+    while True:
+        print("\n" + "="*50)
+        print("🏥 MENÚ INTERACTIVO - SISTEMA FARMACÉUTICO")
+        print("="*50)
+        print("1. 🛒 Registrar nueva dispensación (POS)")
+        print("2. 📦 Consultar stock de un producto (SCM)")
+        print("3. 💵 Consultar saldo y libro diario (ERP)")
+        print("4. 📊 Re-generar Dashboard Gerencial")
+        print("5. 🚪 Salir")
+        
+        opcion = input("\nSeleccione una opción (1-5): ").strip()
+
+        if opcion == "1":
+            print("\n--- 🛒 REGISTRAR VENTA EN PUNTO DE VENTA ---")
+            id_factura = input("Ingrese ID de Factura (ej. F-100): ").strip()
+            barcode = input("Ingrese Código de Barras (ej. 789012345601): ").strip()
+            
+            try:
+                cantidad = int(input("Ingrese Cantidad a comprar: "))
+            except ValueError:
+                print("❌ Cantidad inválida.")
+                continue
+                
+            id_paciente = input("Ingrese ID de Paciente (opcional, presione Enter para omitir): ").strip()
+            if not id_paciente:
+                id_paciente = None
+
+            # Dispara la integración automática inter-módulos
+            pos.procesar_dispensacion(id_factura, barcode, cantidad, id_paciente)
+
+        elif opcion == "2":
+            barcode = input("\nIngrese el Código de Barras del producto: ").strip()
+            prod = pos.scm.df_inventario[pos.scm.df_inventario['barcode'] == barcode]
+            if not prod.empty:
+                print(f"\n📌 Producto: {prod.iloc[0]['name']}")
+                print(f"   Stock actual: {prod.iloc[0]['stock_actual']} unidades")
+                print(f"   Precio: ${prod.iloc[0]['precio_unitario']}")
+            else:
+                print("❌ Producto no encontrado.")
+
+        elif opcion == "3":
+            print(f"\n💰 Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
+            print(f"📖 Total de asientos contables registrados: {len(pos.erp.libro_diario)}")
+
+        elif opcion == "4":
+            print("\n🎨 Generando Dashboard actualizado...")
+            dash = DashboardGerencial()
+            dash.compilar_dashboard()
+
+        elif opcion == "5":
+            print("\n👋 ¡Saliendo del sistema!")
+            break
+        else:
+            print("❌ Opción no válida. Intente de nuevo.")
 
 if __name__ == "__main__":
-    ejecutar_simulacion()
-
- 
+    pos_instancia = ejecutar_simulacion()
+    menu_interactivo(pos_instancia)
