@@ -9,12 +9,12 @@ class DashboardGerencial:
     def compilar_dashboard(self):
         """Unifica los gráficos individuales en un único Dashboard Gerencial (2x2)."""
         fig, axs = plt.subplots(2, 2, figsize=(16, 11))
-        fig.suptitle('🏥 DASHBOARD INTEGRADO DE GESTIÓN FARMACÉUTICA Y SALUD', fontsize=18, fontweight='bold', y=0.98)
+        fig.suptitle('DASHBOARD INTEGRADO DE GESTION FARMACEUTICA Y SALUD', fontsize=18, fontweight='bold', y=0.98)
 
         graficos = [
             ("grafico_caducidades.png", "1. SCM: Estado de Caducidades", (0, 0)),
             ("grafico_flujo_caja.png", "2. ERP: Flujo de Caja en Tiempo Real", (0, 1)),
-            ("grafico_rfm_pacientes.png", "3. CRM: Segmentación RFM de Pacientes", (1, 0)),
+            ("grafico_rfm_pacientes.png", "3. CRM: Segmentacion RFM de Pacientes", (1, 0)),
         ]
 
         for img_name, titulo, pos in graficos:
@@ -33,13 +33,13 @@ class DashboardGerencial:
         ax_kpi.axis('off')
         
         texto_kpi = (
-            "📌 RESUMEN EJECUTIVO (KPIs)\n"
-            "───────────────────────────────\n"
-            "• Módulo SCM: Alertas automatizadas por caducidad y stock.\n"
-            "• Módulo ERP: Contabilidad y caja actualizada en tiempo real.\n"
-            "• Módulo CRM: Control de deserción de tratamiento mediante RFM.\n"
-            "• Core POS: Orquestación inter-módulos en cada venta.\n\n"
-            "✅ Sistema Operativo y Validado para Presentación."
+            "RESUMEN EJECUTIVO (KPIs)\n"
+            "-----------------------------------------\n"
+            "* Modulo SCM: Alertas automatizadas por caducidad y stock.\n"
+            "* Modulo ERP: Contabilidad y caja actualizada en tiempo real.\n"
+            "* Modulo CRM: Control de desercion de tratamiento mediante RFM.\n"
+            "* Core POS: Orquestacion inter-modulos en cada venta.\n\n"
+            "[OK] Sistema Operativo y Validado para Presentacion."
         )
         
         ax_kpi.text(0.1, 0.5, texto_kpi, fontsize=13, verticalalignment='center',

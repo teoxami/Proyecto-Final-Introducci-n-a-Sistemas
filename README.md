@@ -39,3 +39,18 @@ PROYECTO FINAL ISI/
 ├── setup_data.py               # Generador automatizado de datos iniciales
 ├── main.py                     # Ejecutable principal del sistema
 └── README.md                   # Documentación técnica
+---
+
+## 🛡️ FASE 3.2: Auditoría Web y Despliegue Cloud
+
+Si la plataforma fuera desplegada en un entorno de producción en la nube (ej. AWS / Azure), se establecen las siguientes directrices de auditoría y rendimiento:
+
+### 1. KPIs de Desempeño Web (Core Web Vitals)
+* **LCP (Largest Contentful Paint) < 2.5s:** Carga rápida de la interfaz del Punto de Venta (POS) y catálogo visual de productos.
+* **FID / INP (Interaction to Next Paint) < 200ms:** Respuesta inmediata al escanear un código de barras o ingresar un paciente en el POS.
+* **CLS (Cumulative Layout Shift) < 0.1:** Estabilidad visual durante la selección de medicamentos y generación de facturas contables.
+
+### 2. Seguridad y Protocolos en la Nube
+* **Cifrado de Datos:** Tránsito mediante HTTPS/TLS 1.3 y reposo utilizando cifrado AES-256 para la base de datos de pacientes (cumplimiento de confidencialidad de datos de salud).
+* **Control de Acceso Basado en Roles (RBAC):** Roles independientes para Cajero (POS), Administrador de Inventario (SCM/ERP) y Analista BI (CRM/Analytics).
+* **Trazabilidad de Asientos:** Registro inalterable (*Audit Logs*) de cada movimiento contable generado en la caja chica para prevención de fraudes.
