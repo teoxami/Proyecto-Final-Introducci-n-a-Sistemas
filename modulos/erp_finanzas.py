@@ -1,44 +1,70 @@
-from datetime import datetime
+import os
 import pandas as pd
+from datetime import datetime
+
 
 class ModuloERP:
-    def __init__(self, saldo_inicial=5000.0):
-        self.caja_chica = saldo_inicial
-        self.libros_contables = []
+    def __init__(self, ruta_libros="data/libro_diario.csv", saldo_inicial=10000.0):
+        self.ruta_libros = ruta_libros
+        self.saldo_inicial = saldo_inicial
+        self.cargar_libro_diario()
 
-    def registrar_asiento_ingreso(self, id_factura, monto, descripcion="Venta de Medicamentos"):
-        """
-        Disparador ERP: Se ejecuta automáticamente al realizar una venta en el Core POS.
-        Aumenta el flujo de caja y registra el haber.
-        """
-        self.caja_chica += monto
-        asiento = {
-            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "id_factura": id_factura,
-            "tipo": "INGRESO",
-            "descripcion": descripcion,
-            "monto": monto,
-            "saldo_caja_resultante": self.caja_chica
-        }
-        self.libros_contables.append(asiento)
-        print(f"  💵 [ERP CONTABILIDAD] Asiento registrado para Factura #{id_factura}. +${monto:.2f} | Caja Actual: ${self.caja_chica:.2f}")
+    def cargar_libro_diario(self):
+        """Carga el historial financiero desde el disco o crea uno nuevo."""
+        if os.path.exists(self.ruta_libros) and os.path.getsize(self.ruta_libros) > 0:
+            try:
+                self.df_libros = pd.read_csv(self.ruta_libros)
+                ingresos = self.df_libros[self.df_libros['tipo'] == 'Ingreso']['monto'].sum()
+                egresos = self.df_libros[self.df_libros['tipo'] == 'Egreso']['monto'].sum()
+                self.caja_chica = self.saldo_inicial + ingresos - egresos
+            except Exception as e:
+                print(f"⚠️ Error al cargar libro diario: {e}")
+                self._inicializar_vacio()
+        else:
+            self._inicializar_vacio()
 
-    def registrar_asiento_merma(self, nombre_producto, monto_perdida):
-        """
-        Registra el egreso/pérdida contable por medicamentos caducados retirados.
-        """
-        self.caja_chica -= monto_perdida
-        asiento = {
-            "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "id_factura": "N/A (MERMA)",
-            "tipo": "EGRESO / PERDIDA",
-            "descripcion": f"Retiro por Caducidad: {nombre_producto}",
-            "monto": -monto_perdida,
-            "saldo_caja_resultante": self.caja_chica
+    def _inicializar_vacio(self):
+        """Inicializa la estructura si no existe el archivo CSV."""
+        self.caja_chica = self.saldo_inicial
+        self.df_libros = pd.DataFrame(columns=['fecha', 'monto', 'tipo', 'descripcion'])
+        self.guardar_libro_diario()
+
+    def registrar_transaccion(self, monto, tipo, descripcion):
+        """Registra un ingreso/egreso y actualiza el saldo."""
+        fecha_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if tipo.lower() == 'ingreso':
+            self.caja_chica += monto
+            tipo_label = 'Ingreso'
+        else:
+            self.caja_chica -= monto
+            tipo_label = 'Egreso'
+
+        nueva_fila = {
+            'fecha': fecha_str,
+            'monto': float(monto),
+            'tipo': tipo_label,
+            'descripcion': descripcion
         }
-        self.libros_contables.append(asiento)
-        print(f"  📉 [ERP CONTABILIDAD] Pérdida por caducidad registrada: {nombre_producto} (-${monto_perdida:.2f})")
+        
+        self.df_libros = pd.concat([self.df_libros, pd.DataFrame([nueva_fila])], ignore_index=True)
+        self.guardar_libro_diario()
+
+    def registrar_asiento_ingreso(self, id_factura, monto, descripcion):
+        """Registra un asiento de ingreso por ventas desde el módulo POS."""
+        desc_completa = f"Factura #{id_factura}: {descripcion}"
+        self.registrar_transaccion(monto, 'Ingreso', desc_completa)
+
+    def registrar_asiento_merma(self, nombre_producto, monto):
+        """Registra un asiento de egreso/pérdida por producto vencido/retirado."""
+        self.registrar_transaccion(monto, 'Egreso', f"Merma/Baja de producto: {nombre_producto}")
 
     def obtener_resumen_financiero(self):
-        """Genera un DataFrame con el libro diario contable."""
-        return pd.DataFrame(self.libros_contables)
+        """Devuelve el DataFrame completo del libro diario."""
+        self.cargar_libro_diario()
+        return self.df_libros
+
+    def guardar_libro_diario(self):
+        """Guarda las transacciones acumuladas en el archivo CSV."""
+        os.makedirs(os.path.dirname(self.ruta_libros), exist_ok=True)
+        self.df_libros.to_csv(self.ruta_libros, index=False)

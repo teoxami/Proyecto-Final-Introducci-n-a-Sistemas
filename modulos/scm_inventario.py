@@ -8,26 +8,28 @@ class ModuloSCM:
         self.cargar_inventario()
 
     def cargar_inventario(self):
-        """Carga el inventario desde el archivo CSV."""
+        """Carga el inventario asegurando que el código de barras sea string sin flotantes."""
         try:
             self.df_inventario = pd.read_csv(self.ruta_inventario)
-            self.df_inventario['barcode'] = self.df_inventario['barcode'].astype(str)
+            self.df_inventario['barcode'] = self.df_inventario['barcode'].astype(str).str.split('.').str[0].str.strip()
         except Exception as e:
             print(f"❌ Error al cargar inventario SCM: {e}")
 
     def guardar_inventario(self):
-        """Guarda las actualizaciones del inventario en el CSV."""
-        self.df_inventario.to_csv(self.ruta_inventario, index=False)
+        """Guarda el inventario eliminando columnas temporales de cálculo."""
+        df_a_guardar = self.df_inventario.copy()
+        if 'barcode_clean' in df_a_guardar.columns:
+            df_a_guardar = df_a_guardar.drop(columns=['barcode_clean'])
+        if 'fecha_caducidad_dt' in df_a_guardar.columns:
+            df_a_guardar = df_a_guardar.drop(columns=['fecha_caducidad_dt'])
+            
+        df_a_guardar.to_csv(self.ruta_inventario, index=False)
 
     def verificar_caducidades(self, dias_umbral=30):
-        """Retorna productos caducados y próximos a caducar."""
         hoy = datetime.now()
         self.df_inventario['fecha_caducidad_dt'] = pd.to_datetime(self.df_inventario['fecha_caducidad'])
         
-        # Filtrar medicamentos vencidos
         vencidos = self.df_inventario[self.df_inventario['fecha_caducidad_dt'] < hoy]
-        
-        # Filtrar medicamentos próximos a vencer (en menos de 'dias_umbral')
         limite = hoy + pd.Timedelta(days=dias_umbral)
         por_vencer = self.df_inventario[
             (self.df_inventario['fecha_caducidad_dt'] >= hoy) & 
@@ -37,11 +39,9 @@ class ModuloSCM:
         return vencidos, por_vencer
 
     def evaluar_y_reabastecer(self, barcode, cantidad_vendida):
-        """
-        Disparador SCM: Reduce stock tras venta y genera orden de compra
-        automática si el stock cae por debajo del mínimo.
-        """
-        idx = self.df_inventario[self.df_inventario['barcode'] == str(barcode)].index
+        barcode_str = str(barcode).split('.')[0].strip()
+        idx = self.df_inventario[self.df_inventario['barcode'] == barcode_str].index
+        
         if not idx.empty:
             i = idx[0]
             stock_actual = self.df_inventario.loc[i, 'stock_actual'] - cantidad_vendida
@@ -49,17 +49,16 @@ class ModuloSCM:
             stock_minimo = self.df_inventario.loc[i, 'stock_minimo']
             nombre = self.df_inventario.loc[i, 'name']
 
-            # Desencadenante automático de Orden de Compra
             if stock_actual <= stock_minimo:
                 orden = {
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                    "barcode": barcode,
+                    "barcode": barcode_str,
                     "producto": nombre,
                     "cantidad_reorden": 20,
                     "estado": "Generada Automáticamente"
                 }
                 self.ordenes_compra.append(orden)
-                print(f"  📦 [SCM ALERTA] Stock bajo de '{nombre}' ({stock_actual} un.). ¡Orden de compra generada automáticamente!")
+                print(f"  📦 [SCM ALERTA] Stock bajo de '{nombre}' ({stock_actual} un.). ¡Orden generada!")
             
             self.guardar_inventario()
             return True
