@@ -28,7 +28,7 @@ class ModuloCRM:
                     'id_paciente', 'nombre_paciente', 'ultima_compra', 'total_compras'
                 ])
         except Exception as e:
-            print(f"❌ Error al cargar pacientes CRM: {e}")
+            print(f"Error al cargar pacientes CRM: {e}")
             self.df_pacientes = pd.DataFrame(columns=[
                 'id_paciente', 'nombre_paciente', 'ultima_compra', 'total_compras'
             ])
@@ -47,7 +47,7 @@ class ModuloCRM:
             self.df_pacientes.loc[mask, 'total_compras'] = (
                 pd.to_numeric(self.df_pacientes.loc[mask, 'total_compras'], errors='coerce').fillna(0) + 1
             )
-            print(f"  👤 [CRM] Historial actualizado para paciente registrado: {id_paciente}")
+            print(f"[CRM] Historial actualizado para paciente registrado: {id_paciente}")
         else:
             nombre_final = nombre_nuevo.strip() if nombre_nuevo and nombre_nuevo.strip() else f"Paciente {id_paciente}"
             nuevo_paciente = {
@@ -57,7 +57,7 @@ class ModuloCRM:
                 'total_compras': 1
             }
             self.df_pacientes = pd.concat([self.df_pacientes, pd.DataFrame([nuevo_paciente])], ignore_index=True)
-            print(f"  👤 [CRM] Registrado nuevo paciente: {nombre_final} ({id_paciente})")
+            print(f"[CRM] Registrado nuevo paciente: {nombre_final} ({id_paciente})")
 
         self.guardar_pacientes()
 

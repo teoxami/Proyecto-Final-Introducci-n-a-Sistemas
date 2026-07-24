@@ -40,7 +40,7 @@ barcode,name,dosage_form,type,precio_unitario,stock_actual,stock_minimo,fecha_ca
 126,Canesten 20g skin cream,Cream,Drug,20.65,17,5,2027-01-20,LOTE-2024-1039
 8681120000000,CLODY Solution 15ml,SOLUTION,Drug,6.81,39,5,2028-07-13,LOTE-2024-1040
 9504000000000,ZincoxAwa 15%,Ointment,Drug,23.04,36,5,2026-07-09,LOTE-2024-1041
-8697450000000,Baby soft cotton 574,cotton,Supply,3.0,35,5,2027-01-20,LOTE-2024-1042
+8697450000000,Baby soft cotton 574,cotton,Supply,3.0,30,5,2027-01-20,LOTE-2024-1042
 8699180000000,papatya  loka,cotton,Supply,41.06,45,5,2028-07-13,LOTE-2024-1043
 1319732,micropore 3m SPi plaster lut,instrument,Supply,12.76,4,5,2026-08-18,LOTE-2024-1044
 6024020000000,Fine`s immune booster Pectin Gummies,gum,Drug,30.32,38,5,2028-07-13,LOTE-2024-1045
@@ -816,7 +816,7 @@ VVPFDT,golaprop,Oral Spray,Drug,41.63,20,5,2026-09-22,LOTE-2024-1799
 6214100000000,lido plus,spray,Supply,27.22,29,5,2028-07-13,LOTE-2024-1816
 5413900000000,Tears Natural,Eye Drop,Drug,18.86,39,5,2028-07-13,LOTE-2024-1817
 8018800000000,arnica 30% gicar 75ml,Cream,Supply,3.88,41,5,2027-01-20,LOTE-2024-1818
-5201090000000,Johnson baby shampoo 200ml,Shampoo,Supply,16.08,28,5,2028-07-13,LOTE-2024-1819
+5201090000000,Johnson baby shampoo 200ml,Shampoo,Supply,16.08,33,5,2028-07-13,LOTE-2024-1819
 1384,neuritis injection for im,Amp,Drug,36.42,19,5,2027-07-24,LOTE-2024-1820
 9556020000000,panadol 500mg gsk 36tab,Tablet,Drug,1.7,37,5,2026-08-18,LOTE-2024-1821
 6956140000000,Detol soap,Soap,Drug,16.01,19,5,2026-09-22,LOTE-2024-1822

@@ -23,7 +23,7 @@ class SistemaCorePOS:
                 df_existente = pd.read_csv(self.ruta_csv)
                 self.historial_ventas = df_existente.to_dict('records')
             except Exception as e:
-                print(f"⚠️ [CORE POS] Error al leer {self.ruta_csv}: {e}")
+                print(f"[CORE POS] Error al leer {self.ruta_csv}: {e}")
                 self.historial_ventas = []
         else:
             # Crear CSV con encabezados si no existe
@@ -33,7 +33,7 @@ class SistemaCorePOS:
             df_vacio.to_csv(self.ruta_csv, index=False)
 
     def procesar_dispensacion(self, id_factura, barcode, cantidad, id_paciente=None, nombre_paciente=None):
-        print(f"\n🛒 [CORE POS] Procesando dispensación - Factura #{id_factura}...")
+        print(f"\n[CORE POS] Procesando dispensación - Factura #{id_factura}...")
 
         # 1. Normalizar código de barras ingresado
         barcode_str = str(barcode).split('.')[0].strip()
@@ -45,7 +45,7 @@ class SistemaCorePOS:
         coincidencias = df_inv[df_inv['barcode_clean'] == barcode_str]
 
         if coincidencias.empty:
-            print(f"❌ [CORE POS ERROR] Producto con código '{barcode_str}' no encontrado en el inventario.")
+            print(f"[CORE POS ERROR] Producto con código '{barcode_str}' no encontrado en el inventario.")
             return False
 
         fila_prod = coincidencias.iloc[0]
@@ -55,16 +55,16 @@ class SistemaCorePOS:
 
         # 3. Validar Stock disponible
         if stock_disponible <= 0:
-            print(f"🚫 [CORE POS ERROR] No hay stock disponible para '{nombre_prod}' (Stock actual: {stock_disponible}). Venta CANCELADA.")
+            print(f"[CORE POS ERROR] No hay stock disponible para '{nombre_prod}' (Stock actual: {stock_disponible}). Venta CANCELADA.")
             return False
 
         if cantidad > stock_disponible:
-            print(f"⚠️ [CORE POS ADVERTENCIA] Stock insuficiente para '{nombre_prod}'. Solicitado: {cantidad} | Disponible: {stock_disponible}. Venta CANCELADA.")
+            print(f"[CORE POS ADVERTENCIA] Stock insuficiente para '{nombre_prod}'. Solicitado: {cantidad} | Disponible: {stock_disponible}. Venta CANCELADA.")
             return False
 
         # 4. Calcular Total
         total_venta = precio_unitario * cantidad
-        print(f"  📌 Producto: {nombre_prod} | Cantidad: {cantidad} | Total: ${total_venta:.2f}")
+        print(f"Producto: {nombre_prod} | Cantidad: {cantidad} | Total: ${total_venta:.2f}")
 
         # 5. Ejecutar eventos inter-módulos
         self.scm.evaluar_y_reabastecer(barcode_str, cantidad)
@@ -90,6 +90,6 @@ class SistemaCorePOS:
         df_facturas = pd.DataFrame(self.historial_ventas)
         df_facturas.to_csv(self.ruta_csv, index=False)
 
-        print(f"✅ [CORE POS] Transacción #{id_factura} completada exitosamente.")
-        print(f"💾 [PERSISTENCIA] Factura guardada en: {self.ruta_csv} (Total guardadas: {len(self.historial_ventas)})\n")
+        print(f"[CORE POS] Transacción #{id_factura} completada exitosamente.")
+        print(f"[PERSISTENCIA] Factura guardada en: {self.ruta_csv} (Total guardadas: {len(self.historial_ventas)})\n")
         return True

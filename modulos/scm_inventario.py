@@ -58,7 +58,7 @@ class ModuloSCM:
                     "estado": "Generada Automáticamente"
                 }
                 self.ordenes_compra.append(orden)
-                print(f"  📦 [SCM ALERTA] Stock bajo de '{nombre}' ({stock_actual} un.). ¡Orden generada!")
+                print(f"[SCM ALERTA] Stock bajo de '{nombre}' ({stock_actual} un.). ¡Orden generada!")
             
             self.guardar_inventario()
             return True

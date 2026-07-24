@@ -18,7 +18,7 @@ def formatear_tabla(df, max_colwidth=22, show_index=False):
     Convierte un DataFrame en una tabla limpia, alineada y adaptada a la terminal.
     """
     if df is None or df.empty:
-        return "⚠️ No hay datos registrados para mostrar."
+        return "No hay datos registrados para mostrar."
     
     df_clean = df.copy()
 
@@ -98,14 +98,14 @@ def buscar_producto_interactivo(scm, termino_busqueda):
     coincidencias = df_inv[df_inv['name'].str.lower().str.contains(termino, na=False)].copy()
     
     if coincidencias.empty:
-        print("❌ No se encontraron productos que coincidan con la búsqueda.")
+        print("No se encontraron productos que coincidan con la búsqueda.")
         return None
     elif len(coincidencias) == 1:
         prod = coincidencias.iloc[0]
         print(f"✅ Producto encontrado: {prod['name']} (Stock: {prod['stock_actual']} | Precio: ${prod['precio_unitario']})")
         return prod['barcode_str']
     else:
-        print(f"\n🔍 Se encontraron {len(coincidencias)} productos coincidentes:")
+        print(f"\nSe encontraron {len(coincidencias)} productos coincidentes:")
         
         # Preparar datos con columna de posición (#) explícita
         coincidencias_reset = coincidencias.reset_index(drop=True)
@@ -128,7 +128,7 @@ def buscar_producto_interactivo(scm, termino_busqueda):
             if sel in coincidencias_reset['barcode_str'].values:
                 return sel
                 
-            print("⚠️ Selección no válida. Intente con el número de posición (#) mostrado en la tabla.")
+            print("Selección no válida. Intente con el número de posición (#) mostrado en la tabla.")
 
 
 def consultar_y_reportar_caducidades(scm):
@@ -140,15 +140,15 @@ def consultar_y_reportar_caducidades(scm):
     print("="*60)
     
     if not vencidos.empty:
-        print(f"\n❌ MEDICAMENTOS CADUCADOS DETECTADOS ({len(vencidos)} en total):")
+        print(f"\nMEDICAMENTOS CADUCADOS DETECTADOS ({len(vencidos)} en total):")
         df_v = vencidos[['barcode', 'name', 'lote', 'fecha_caducidad', 'stock_actual', 'precio_unitario']].head(8)
         print(formatear_tabla(df_v))
         print("💡 Consejo: Usa la Opción 6 para dar de baja manualmente los productos vencidos.")
     else:
-        print("\n✅ No hay medicamentos caducados en el inventario.")
+        print("\nNo hay medicamentos caducados en el inventario.")
 
     if not por_vencer.empty:
-        print(f"\n⚠️ MEDICAMENTOS PRÓXIMOS A VENCER (<= 30 días - {len(por_vencer)} en total):")
+        print(f"\nMEDICAMENTOS PRÓXIMOS A VENCER (<= 30 días - {len(por_vencer)} en total):")
         df_pv = por_vencer[['barcode', 'name', 'lote', 'fecha_caducidad', 'stock_actual']].head(8)
         print(formatear_tabla(df_pv))
 
@@ -158,10 +158,10 @@ def dar_de_baja_producto_vencido(scm, erp):
     vencidos, _ = scm.verificar_caducidades(dias_umbral=0)
     
     if vencidos.empty:
-        print("✅ No hay productos vencidos en el inventario actualmente.")
+        print("No hay productos vencidos en el inventario actualmente.")
         return
 
-    print("\n🗑️ --- ELIMINACIÓN MANUAL DE MEDICAMENTOS VENCIDOS ---")
+    print("\n--- ELIMINACIÓN MANUAL DE MEDICAMENTOS VENCIDOS ---")
     termino = input("Ingrese el Código de Barras o Nombre del producto a dar de baja: ").strip()
     
     barcode = buscar_producto_interactivo(scm, termino)
@@ -172,7 +172,7 @@ def dar_de_baja_producto_vencido(scm, erp):
     idx = scm.df_inventario[scm.df_inventario['barcode'].astype(str).str.split('.').str[0].str.strip() == barcode_str].index
 
     if idx.empty:
-        print("❌ No se encontró el producto especificado.")
+        print("No se encontró el producto especificado.")
         return
 
     fila_prod = scm.df_inventario.loc[idx[0]]
@@ -180,7 +180,7 @@ def dar_de_baja_producto_vencido(scm, erp):
     stock_actual = int(fila_prod['stock_actual'])
     precio_unitario = float(fila_prod['precio_unitario'])
 
-    confirmacion = input(f"❓ ¿Está seguro de eliminar '{nombre_prod}' (Stock: {stock_actual} un.)? (s/n): ").strip().lower()
+    confirmacion = input(f"¿Está seguro de eliminar '{nombre_prod}' (Stock: {stock_actual} un.)? (s/n): ").strip().lower()
     if confirmacion == 's':
         monto_perdida = stock_actual * precio_unitario
         erp.registrar_asiento_merma(nombre_prod, monto_perdida)
@@ -188,10 +188,10 @@ def dar_de_baja_producto_vencido(scm, erp):
         scm.df_inventario = scm.df_inventario.drop(idx).reset_index(drop=True)
         scm.guardar_inventario()
 
-        print(f"✅ Se ha eliminado correctamente '{nombre_prod}' de 'inventario_lotes.csv'.")
-        print(f"📉 Pérdida registrada en el ERP: -${monto_perdida:.2f}")
+        print(f"Se ha eliminado correctamente '{nombre_prod}' de 'inventario_lotes.csv'.")
+        print(f"Pérdida registrada en el ERP: -${monto_perdida:.2f}")
     else:
-        print("⚠️ Operación cancelada.")
+        print("Operación cancelada.")
 
 
 def consultar_y_ajustar_stock(scm):
@@ -206,18 +206,18 @@ def consultar_y_ajustar_stock(scm):
     idx = scm.df_inventario[scm.df_inventario['barcode'].astype(str).str.split('.').str[0].str.strip() == barcode_str].index
 
     if idx.empty:
-        print("❌ No se encontró el producto en el inventario.")
+        print("No se encontró el producto en el inventario.")
         return
 
     i = idx[0]
     prod = scm.df_inventario.loc[[i]][['barcode', 'name', 'stock_actual', 'precio_unitario', 'fecha_caducidad']]
-    print("\n📌 DETALLE DEL PRODUCTO SELECCIONADO:")
+    print("\nDETALLE DEL PRODUCTO SELECCIONADO:")
     print(formatear_tabla(prod))
 
     print("\n¿Desea modificar el stock de este producto?")
-    print(" 1. ➕ Añadir unidades (Ingreso / Reposición)")
-    print(" 2. ➖ Remover unidades (Ajuste / Pérdida)")
-    print(" 3. ↩️ Volver al menú principal (Sin cambios)")
+    print(" 1. Añadir unidades (Ingreso / Reposición)")
+    print(" 2. Remover unidades (Ajuste / Pérdida)")
+    print(" 3. Volver al menú principal (Sin cambios)")
     
     opc = input("\nSeleccione una opción (1-3): ").strip()
 
@@ -225,45 +225,45 @@ def consultar_y_ajustar_stock(scm):
         try:
             cant = int(input("Ingrese la cantidad de unidades a AÑADIR: "))
             if cant <= 0:
-                print("❌ La cantidad debe ser mayor a cero.")
+                print("La cantidad debe ser mayor a cero.")
                 return
             
             scm.df_inventario.loc[i, 'stock_actual'] += cant
             scm.guardar_inventario()
-            print(f"✅ ¡Stock actualizado! Nuevo stock: {scm.df_inventario.loc[i, 'stock_actual']} unidades.")
+            print(f"¡Stock actualizado! Nuevo stock: {scm.df_inventario.loc[i, 'stock_actual']} unidades.")
         except ValueError:
-            print("❌ Entrada no válida.")
+            print("Entrada no válida.")
 
     elif opc == "2":
         try:
             cant = int(input("Ingrese la cantidad de unidades a REMOVER: "))
             if cant <= 0:
-                print("❌ La cantidad debe ser mayor a cero.")
+                print("La cantidad debe ser mayor a cero.")
                 return
             
             stock_actual = int(scm.df_inventario.loc[i, 'stock_actual'])
             if cant > stock_actual:
-                print(f"⚠️ No se puede remover {cant} unidades. El stock disponible es solo {stock_actual}.")
+                print(f"No se puede remover {cant} unidades. El stock disponible es solo {stock_actual}.")
                 return
             
             scm.df_inventario.loc[i, 'stock_actual'] -= cant
             scm.guardar_inventario()
-            print(f"✅ ¡Stock actualizado! Nuevo stock: {scm.df_inventario.loc[i, 'stock_actual']} unidades.")
+            print(f"¡Stock actualizado! Nuevo stock: {scm.df_inventario.loc[i, 'stock_actual']} unidades.")
         except ValueError:
-            print("❌ Entrada no válida.")
+            print("Entrada no válida.")
 
     elif opc == "3":
-        print("👍 Sin modificaciones en el stock.")
+        print("Sin modificaciones en el stock.")
     else:
-        print("❌ Opción no válida.")
+        print("Opción no válida.")
 
 
 def inicializar_sistema():
     """Inicializa los módulos principales del sistema."""
     print("="*75)
-    print("🏥 SISTEMA INTEGRADO DE GESTIÓN FARMACÉUTICA Y SALUD")
+    print("SISTEMA INTEGRADO DE GESTIÓN FARMACÉUTICA Y SALUD")
     print("="*75)
-    print("\n⚙️ [INICIALIZACIÓN] Cargando módulos del sistema...")
+    print("\n[INICIALIZACIÓN] Cargando módulos del sistema...")
     
     scm = ModuloSCM()
     erp = ModuloERP(saldo_inicial=10000.0)
@@ -272,9 +272,9 @@ def inicializar_sistema():
     
     vencidos, _ = scm.verificar_caducidades(dias_umbral=0)
     if not vencidos.empty:
-        print(f"⚠️ [ATENCIÓN] Hay {len(vencidos)} lote(s) de medicamentos caducados en inventario. Revisa la Opción 5 para auditarlos.")
+        print(f"[ATENCIÓN] Hay {len(vencidos)} lote(s) de medicamentos caducados en inventario. Revisa la Opción 5 para auditarlos.")
     
-    print("✅ Sistema listo para operar de manera interactiva.\n")
+    print("Sistema listo para operar de manera interactiva.\n")
     return pos
 
 
@@ -285,24 +285,24 @@ def menu_interactivo(pos):
         opcion = input("\nSeleccione una opción (1-9): ").strip()
 
         if opcion == "1":
-            print("\n--- 🛒 REGISTRAR VENTA EN PUNTO DE VENTA (POS) ---")
+            print("\n---REGISTRAR VENTA EN PUNTO DE VENTA (POS)---")
             id_factura = f"F-{random.randint(10000, 99999)}"
-            print(f"📋 ID de Factura generado automáticamente: {id_factura}")
+            print(f"ID de Factura generado automáticamente: {id_factura}")
             
             termino = input("Ingrese Código de Barras o Nombre del producto: ").strip()
             barcode_seleccionado = buscar_producto_interactivo(pos.scm, termino)
             
             if not barcode_seleccionado:
-                print("⚠️ Operación cancelada o producto no seleccionado.")
+                print("Operación cancelada o producto no seleccionado.")
                 continue
 
             try:
                 cantidad = int(input("Ingrese Cantidad a comprar: "))
                 if cantidad <= 0:
-                    print("❌ La cantidad debe ser mayor a cero.")
+                    print("La cantidad debe ser mayor a cero.")
                     continue
             except ValueError:
-                print("❌ Cantidad inválida.")
+                print("Cantidad inválida.")
                 continue
                 
             id_paciente = input("Ingrese ID de Paciente (opcional, Enter para omitir): ").strip()
@@ -316,29 +316,29 @@ def menu_interactivo(pos):
                 if id_clean in lista_ids:
                     fila = pos.crm.df_pacientes[pos.crm.df_pacientes['id_paciente'].astype(str).str.strip() == id_clean]
                     nombre_paciente = fila.iloc[0]['nombre_paciente']
-                    print(f"👤 Paciente detectado en sistema: {nombre_paciente}")
+                    print(f"Paciente detectado en sistema: {nombre_paciente}")
                 else:
-                    print(f"✨ Detectado ID '{id_clean}' como paciente nuevo en el sistema.")
+                    print(f"Detectado ID '{id_clean}' como paciente nuevo en el sistema.")
                     nombre_paciente = input("Ingrese Nombre y Apellido del Paciente: ").strip()
 
-            # 🚀 La dispensación se encarga de registrar/actualizar al paciente de forma limpia (+1 compra)
+            # La dispensación se encarga de registrar/actualizar al paciente de forma limpia (+1 compra)
             pos.procesar_dispensacion(id_factura, barcode_seleccionado, cantidad, id_paciente, nombre_paciente)
 
         elif opcion == "2":
             ruta_csv = getattr(pos, 'ruta_csv', 'data/facturas.csv')
             if os.path.exists(ruta_csv) and os.path.getsize(ruta_csv) > 0:
                 df_f = pd.read_csv(ruta_csv)
-                print("\n📄 --- HISTORIAL DE FACTURAS GUARDADAS EN CSV ---")
+                print("\n--- HISTORIAL DE FACTURAS GUARDADAS EN CSV ---")
                 print(formatear_tabla(df_f))
             else:
-                print("\n⚠️ Aún no se han generado facturas en el sistema.")
+                print("\nAún no se han generado facturas en el sistema.")
 
         elif opcion == "3":
             consultar_y_ajustar_stock(pos.scm)
 
         elif opcion == "4":
-            print("\n--- 💵 CONSULTAR SALDO Y LIBRO DIARIO (ERP) ---")
-            print(f"💰 Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
+            print("\n---CONSULTAR SALDO Y LIBRO DIARIO (ERP) ---")
+            print(f"Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
             df_libros = pos.erp.obtener_resumen_financiero()
             print(formatear_tabla(df_libros))
 
@@ -349,15 +349,15 @@ def menu_interactivo(pos):
             dar_de_baja_producto_vencido(pos.scm, pos.erp)
 
         elif opcion == "7":
-            print("\n--- 👥 MÓDULO CRM - ALERTAS DE DESERCIÓN Y PACIENTES ---")
+            print("\n---MÓDULO CRM - ALERTAS DE DESERCIÓN Y PACIENTES ---")
             pacientes_riesgo = pos.crm.obtener_pacientes_en_riesgo()
-            print(f"🚨 Pacientes en Riesgo (>30 días inactivos): {len(pacientes_riesgo)}\n")
+            print(f"Pacientes en Riesgo (>30 días inactivos): {len(pacientes_riesgo)}\n")
             if not pacientes_riesgo.empty:
                 df_pr = pacientes_riesgo[['id_paciente', 'nombre_paciente', 'ultima_compra', 'dias_inactivo', 'estado_alerta']].head(8)
                 print(formatear_tabla(df_pr))
 
         elif opcion == "8":
-            print("\n🎨 Generando Dashboard Gerencial...")
+            print("\nGenerando Dashboard Gerencial...")
             generador = GeneradorAnalitica()
             generador.generar_grafico_caducidades(pos.scm.df_inventario)
             generador.generar_grafico_finanzas(pos.erp.obtener_resumen_financiero())
@@ -367,13 +367,13 @@ def menu_interactivo(pos):
             
             dash = DashboardGerencial()
             dash.compilar_dashboard()
-            print("✨ ¡Dashboard y gráficos generados exitosamente!")
+            print("¡Dashboard y gráficos generados exitosamente!")
 
         elif opcion == "9":
-            print("\n👋 ¡Saliendo del sistema!")
+            print("\n¡Saliendo del sistema!")
             break
         else:
-            print("❌ Opción no válida. Intente de nuevo.")
+            print("Opción no válida. Intente de nuevo.")
 
 if __name__ == "__main__":
     pos_instancia = inicializar_sistema()

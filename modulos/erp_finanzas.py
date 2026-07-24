@@ -18,7 +18,7 @@ class ModuloERP:
                 egresos = self.df_libros[self.df_libros['tipo'] == 'Egreso']['monto'].sum()
                 self.caja_chica = self.saldo_inicial + ingresos - egresos
             except Exception as e:
-                print(f"⚠️ Error al cargar libro diario: {e}")
+                print(f"Error al cargar libro diario: {e}")
                 self._inicializar_vacio()
         else:
             self._inicializar_vacio()
