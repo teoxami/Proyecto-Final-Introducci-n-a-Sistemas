@@ -69,8 +69,7 @@ Ejecutar el sistema:
 
 ```bash
 python main.py
-```
-```
+
 ```
 ## 🛡️ FASE 3.2: Auditoría Web y Despliegue Cloud
 
