@@ -16,34 +16,41 @@ Un sistema integral desarrollado en Python para la optimización de procesos ope
 ## 🏗️ Arquitectura del Proyecto
 
 ```text
-
-PROYECTO FINAL ISI/
+PROYECTO-FINAL-INTRODUCCION-A-SISTEMAS/
 │
-├── data/                       # Archivos de datos locales (CSV)
-│   ├── productos_completo.csv
+├── analytics/
+│   ├── __pycache__/
+│   ├── __init__.py
+│   ├── dashboard.py
+│   ├── dashboard_gerencial.png
+│   ├── grafico_caducidades.png
+│   ├── grafico_flujo_caja.png
+│   ├── grafico_rfm_pacientes.png
+│   ├── graficos.py
+│   └── rfm_analysis.py
+│
+├── data/
+│   ├── facturas.csv
+│   ├── global_test_set.csv
+│   ├── inventario_lotes.csv
+│   ├── libro_diario.csv
 │   └── pacientes.csv
 │
-├── modulos/                    # Módulos satélites y Core POS
+├── modulos/
+│   ├── __pycache__/
 │   ├── __init__.py
-│   ├── scm_inventario.py       # Control de Stock y Caducidades
-│   ├── erp_finanzas.py         # Caja Chica y Libro Diario
-│   ├── crm_pacientes.py        # Adherencia y Riesgo de Abandono
-│   └── core_pos.py             # Orquestador Integrado de Ventas
+│   ├── core_pos.py
+│   ├── crm_pacientes.py
+│   ├── erp_finanzas.py
+│   └── scm_inventario.py
 │
-├── analytics/                  # Inteligencia de Negocios y Dashboards
-│   ├── __init__.py
-│   ├── graficos.py             # Renderizado de gráficos (SCM y ERP)
-│   ├── rfm_analysis.py         # Segmentación RFM de pacientes (CRM)
-│   ├── dashboard.py            # Dashboard Gerencial Consolidado (2x2)
-│   └── dashboard_gerencial.png # Salida gráfica del panel ejecutivo
-│
-├── setup_data.py               # Generador automatizado de datos iniciales
-├── main.py                     # Ejecutable principal del sistema
-├── requirements.txt            # Dependencias del proyecto
-└── README.md                   # Documentación técnica
-```
-
+├── .gitignore
+├── README.md
+├── main.py
+├── requirements.txt
+└── setup_data.py
 ---
+```
 
 # Requisitos
 
