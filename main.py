@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from tabulate import tabulate
 from modulos.scm_inventario import ModuloSCM
@@ -9,7 +10,7 @@ from analytics.rfm_analysis import AnalisisRFM
 from analytics.dashboard import DashboardGerencial
 
 def formatear_tabla(df):
-    """Convierte un DataFrame en una tabla limpia y perfectamente alineada."""
+    """Convierte un DataFrame en una tabla limpia y perfectamente alineada para la terminal."""
     df_clean = df.copy()
     if 'barcode' in df_clean.columns:
         df_clean['barcode'] = df_clean['barcode'].apply(
@@ -112,21 +113,22 @@ def ejecutar_simulacion():
     dash.compilar_dashboard()
     
     print("\n✨ ¡Simulación inicial completada con éxito!")
-    return pos  # Retornamos el objeto pos para usarlo en el menú interactivo
+    return pos
 
 def menu_interactivo(pos):
-    """Menú en consola para ingresar datos dinámicamente."""
+    """Menú en consola para ingresar ventas y consultar datos dinámicamente."""
     while True:
         print("\n" + "="*50)
         print("🏥 MENÚ INTERACTIVO - SISTEMA FARMACÉUTICO")
         print("="*50)
         print("1. 🛒 Registrar nueva dispensación (POS)")
-        print("2. 📦 Consultar stock de un producto (SCM)")
-        print("3. 💵 Consultar saldo y libro diario (ERP)")
-        print("4. 📊 Re-generar Dashboard Gerencial")
-        print("5. 🚪 Salir")
+        print("2. 📄 Ver historial de Facturas guardadas (CSV)")
+        print("3. 📦 Consultar stock de un producto (SCM)")
+        print("4. 💵 Consultar saldo y libro diario (ERP)")
+        print("5. 📊 Re-generar Dashboard Gerencial")
+        print("6. 🚪 Salir")
         
-        opcion = input("\nSeleccione una opción (1-5): ").strip()
+        opcion = input("\nSeleccione una opción (1-6): ").strip()
 
         if opcion == "1":
             print("\n--- 🛒 REGISTRAR VENTA EN PUNTO DE VENTA ---")
@@ -139,14 +141,29 @@ def menu_interactivo(pos):
                 print("❌ Cantidad inválida.")
                 continue
                 
-            id_paciente = input("Ingrese ID de Paciente (opcional, presione Enter para omitir): ").strip()
-            if not id_paciente:
-                id_paciente = None
+            id_paciente = input("Ingrese ID de Paciente (opcional, Enter para omitir): ").strip()
+            nombre_paciente = None
 
-            # Dispara la integración automática inter-módulos
-            pos.procesar_dispensacion(id_factura, barcode, cantidad, id_paciente)
+            if id_paciente:
+                # Verificar si el paciente ya existe en el CRM
+                existe = id_paciente in pos.crm.df_pacientes['id_paciente'].values
+                if not existe:
+                    print(f"✨ Detectado ID '{id_paciente}' como paciente nuevo en el sistema.")
+                    nombre_paciente = input("Ingrese Nombre y Apellido del Paciente: ").strip()
+
+            # Procesar la dispensación guardando el nombre real
+            pos.procesar_dispensacion(id_factura, barcode, cantidad, id_paciente, nombre_paciente)
 
         elif opcion == "2":
+            ruta_csv = getattr(pos, 'ruta_csv', 'data/facturas.csv')
+            if os.path.exists(ruta_csv):
+                df_f = pd.read_csv(ruta_csv)
+                print("\n📄 --- HISTORIAL DE FACTURAS GUARDADAS EN CSV ---")
+                print(formatear_tabla(df_f))
+            else:
+                print("\n⚠️ Aún no se han generado facturas en el sistema.")
+
+        elif opcion == "3":
             barcode = input("\nIngrese el Código de Barras del producto: ").strip()
             prod = pos.scm.df_inventario[pos.scm.df_inventario['barcode'] == barcode]
             if not prod.empty:
@@ -156,16 +173,16 @@ def menu_interactivo(pos):
             else:
                 print("❌ Producto no encontrado.")
 
-        elif opcion == "3":
+        elif opcion == "4":
             print(f"\n💰 Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
             print(f"📖 Total de asientos contables registrados: {len(pos.erp.libro_diario)}")
 
-        elif opcion == "4":
+        elif opcion == "5":
             print("\n🎨 Generando Dashboard actualizado...")
             dash = DashboardGerencial()
             dash.compilar_dashboard()
 
-        elif opcion == "5":
+        elif opcion == "6":
             print("\n👋 ¡Saliendo del sistema!")
             break
         else:

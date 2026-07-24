@@ -15,31 +15,30 @@ class ModuloCRM:
         except Exception as e:
             print(f"❌ Error al cargar pacientes CRM: {e}")
 
-    def actualizar_interaccion_paciente(self, id_paciente):
+    def actualizar_interaccion_paciente(self, id_paciente, nombre_nuevo=None):
         """
-        Disparador CRM: Actualiza la fecha de última compra cuando un paciente
-        vuelve a comprar su tratamiento en la farmacia.
+        Actualiza la fecha de última compra y la frecuencia.
+        Si el paciente no existe y se provee un nombre, lo crea.
         """
-        idx = self.df_pacientes[self.df_pacientes['id_paciente'] == id_paciente].index
-        hoy = datetime.now()
-        
-        if not idx.empty:
-            i = idx[0]
-            self.df_pacientes.loc[i, 'ultima_compra'] = hoy
-            self.df_pacientes.loc[i, 'total_compras'] += 1
-            print(f"  👤 [CRM ACTUALIZACIÓN] Interacción registrada para {id_paciente}. Tratamiento actualizado.")
-            self.guardar_pacientes()
+        id_paciente = str(id_paciente).strip()
+        mask = self.df_pacientes['id_paciente'] == id_paciente
+
+        if mask.any():
+            self.df_pacientes.loc[mask, 'ultima_compra'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.df_pacientes.loc[mask, 'total_compras'] += 1
+            print(f"  👤 [CRM] Historial actualizado para paciente registrado: {id_paciente}")
         else:
-            # Si el paciente es nuevo, se registra
-            nuevo_paciente = pd.DataFrame([{
+            nombre_final = nombre_nuevo if nombre_nuevo else f"Paciente {id_paciente}"
+            nuevo_paciente = {
                 'id_paciente': id_paciente,
-                'nombre_paciente': f"Paciente {id_paciente}",
-                'ultima_compra': hoy,
+                'nombre_paciente': nombre_final,
+                'ultima_compra': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'total_compras': 1
-            }])
-            self.df_pacientes = pd.concat([self.df_pacientes, nuevo_paciente], ignore_index=True)
-            print(f"  👤 [CRM NUEVO] Paciente {id_paciente} registrado exitosamente.")
-            self.guardar_pacientes()
+            }
+            self.df_pacientes = pd.concat([self.df_pacientes, pd.DataFrame([nuevo_paciente])], ignore_index=False)
+            print(f"  👤 [CRM] Registrar nuevo paciente: {nombre_final} ({id_paciente})")
+
+        self.df_pacientes.to_csv("data/pacientes.csv", index=False)
 
     def obtener_pacientes_en_riesgo(self):
         """
