@@ -71,7 +71,7 @@ Ejecutar el sistema:
 python main.py
 ```
 ```
-
+```
 ## 🛡️ FASE 3.2: Auditoría Web y Despliegue Cloud
 
 Si la plataforma fuera desplegada en un entorno de producción en la nube (ej. AWS / Azure), se establecen las siguientes directrices de auditoría y rendimiento:
