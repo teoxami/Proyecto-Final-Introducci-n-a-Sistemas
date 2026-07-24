@@ -58,23 +58,25 @@ def ejecutar_simulacion():
     print("🛒 2. SIMULACIÓN DE DISPENSACIÓN Y VENTAS EN TIEMPO REAL (CORE POS)")
     print("="*75)
     
-    productos_sim = scm.df_inventario.head(2)
-    barcode_1 = productos_sim.iloc[0]['barcode']
-    barcode_2 = productos_sim.iloc[1]['barcode']
+    # Extraer 5 productos del inventario
+    productos_sim = scm.df_inventario.head(5)
     
-    pos.procesar_dispensacion(
-        id_factura=990001,
-        barcode=barcode_1,
-        cantidad=5,
-        id_paciente="PAC-1005"
-    )
-    
-    pos.procesar_dispensacion(
-        id_factura=990002,
-        barcode=barcode_2,
-        cantidad=15,
-        id_paciente="PAC-1012"
-    )
+    # Lista de 5 transacciones para simular
+    simulaciones = [
+        {"factura": 990001, "barcode": productos_sim.iloc[0]['barcode'], "cantidad": 5, "paciente": "PAC-1005"},
+        {"factura": 990002, "barcode": productos_sim.iloc[1]['barcode'], "cantidad": 2, "paciente": "PAC-1012"},
+        {"factura": 990003, "barcode": productos_sim.iloc[2]['barcode'], "cantidad": 1, "paciente": None}, # Consumidor Final
+        {"factura": 990004, "barcode": productos_sim.iloc[3]['barcode'], "cantidad": 3, "paciente": "PAC-1020"},
+        {"factura": 990005, "barcode": productos_sim.iloc[4]['barcode'], "cantidad": 4, "paciente": None}, # Consumidor Final
+    ]
+
+    for sim in simulaciones:
+        pos.procesar_dispensacion(
+            id_factura=sim["factura"],
+            barcode=sim["barcode"],
+            cantidad=sim["cantidad"],
+            id_paciente=sim["paciente"]
+        )
 
     # 4. Evaluación CRM: Riesgo de Deserción / Abandono
     print("\n" + "="*75)
