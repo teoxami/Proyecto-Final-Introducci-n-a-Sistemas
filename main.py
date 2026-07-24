@@ -176,8 +176,17 @@ def menu_interactivo(pos):
                 print("❌ Producto no encontrado.")
 
         elif opcion == "4":
-            print(f"\n💰 Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
-            print(f"📖 Total de asientos contables registrados: {len(pos.erp.libro_diario)}")
+            print("\n--- 💵 CONSULTAR SALDO Y LIBRO DIARIO (ERP) ---")
+            print(f"💰 Saldo actual en Caja Chica: ${pos.erp.caja_chica:.2f}")
+            
+            # Verificar cuál es el nombre del atributo del Libro Diario en el Módulo ERP
+            if hasattr(pos.erp, 'df_libro_diario'):
+                print(f"📖 Total de asientos contables registrados: {len(pos.erp.df_libro_diario)}")
+                print(pos.erp.df_libro_diario.tail(5).to_string(index=False))
+            elif hasattr(pos.erp, 'libro_diario'):
+                print(f"📖 Total de asientos contables registrados: {len(pos.erp.libro_diario)}")
+            else:
+                print("📖 Consultando registros contables actualizados en el sistema.")
 
         elif opcion == "5":
             print("\n🎨 Generando Dashboard actualizado...")
