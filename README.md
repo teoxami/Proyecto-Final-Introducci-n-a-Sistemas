@@ -16,6 +16,7 @@ Un sistema integral desarrollado en Python para la optimización de procesos ope
 ## 🏗️ Arquitectura del Proyecto
 
 ```text
+
 PROYECTO FINAL ISI/
 │
 ├── data/                       # Archivos de datos locales (CSV)
@@ -38,9 +39,37 @@ PROYECTO FINAL ISI/
 │
 ├── setup_data.py               # Generador automatizado de datos iniciales
 ├── main.py                     # Ejecutable principal del sistema
+├── requirements.txt            # Dependencias del proyecto
 └── README.md                   # Documentación técnica
+```
+
 ---
 
+# Requisitos
+
+- Python 3.13 o superior
+- Dependencias definidas en `requirements.txt`
+
+## Instalación
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/teoxami/Proyecto-Final-Introducci-n-a-Sistemas.git
+cd Proyecto-Final-Introducci-n-a-Sistemas
+```
+
+Instalar las dependencias:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Ejecutar el sistema:
+
+```bash
+python main.py
+```
 ```
 
 ## 🛡️ FASE 3.2: Auditoría Web y Despliegue Cloud
